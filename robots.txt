@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://crushitapp.vercel.app/sitemap.xml
