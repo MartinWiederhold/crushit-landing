@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <meta name="description" content="CrushIt analysiert deine Skripte mit KI und erstellt Zusammenfassungen, Karteikarten und Prüfungssimulationen. Bestehe deine Prüfung mit 40% weniger Lernzeit." />
+  <meta property="og:title" content="CrushIt — Bestehe deine Prüfung mit KI" />
+  <meta property="og:description" content="Upload. Verstehen. Bestehen. KI-gestützte Lern-App für Studenten." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://crushit-beta.vercel.app" />
+  <title>CrushIt — Bestehe deine Prüfung mit KI</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0A0A0F;
+      --ink-secondary: #555;
+      --ink-tertiary: #888;
+      --bg: #FFFFFF;
+      --surface: #FAFAFA;
+      --line: #E8E8E8;
+      --mint: #3DBF84;
+      --mint-dark: #2FA670;
+      --warm: #FF8A5B;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
+      --shadow-lg: 0 16px 40px rgba(0,0,0,0.08);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-weight: 400;
+      letter-spacing: -1.2px;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.05;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+    }
+
+    h3 {
+      font-size: clamp(20px, 2.5vw, 26px);
+      line-height: 1.2;
+    }
+
+    a {
+      color: var(--ink);
+      text-decoration: none;
+      transition: opacity 0.15s ease;
+    }
+
+    a:hover {
+      opacity: 0.7;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    button {
+      font-family: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── Wordmark ─── */
+    .wordmark {
+      font-family: 'Inter', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .wordmark .dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--mint);
+      border-radius: 50%;
+      margin: 0 1px 0 1px;
+      vertical-align: middle;
+      position: relative;
+      top: -2px;
+    }
+
+    /* ─── Navigation ─── */
+    nav.topnav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: saturate(180%) blur(16px);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink-secondary);
+    }
+
+    .nav-links a:hover {
+      color: var(--ink);
+      opacity: 1;
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: #FFF;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      box-shadow: var(--shadow-md);
+      opacity: 1;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--ink);
+      opacity: 1;
+    }
+
+    .btn-mint {
+      background: var(--mint);
+      color: #FFF;
+      box-shadow: 0 4px 14px rgba(61, 191, 132, 0.3);
+    }
+
+    .btn-mint:hover {
+      background: var(--mint-dark);
+      box-shadow: 0 8px 24px rgba(61, 191, 132, 0.4);
+      opacity: 1;
+    }
+
+    .btn-sm {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    /* App Store button */
+    .btn-appstore {
+      background: var(--ink);
+      color: #FFF;
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.12s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-appstore:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      opacity: 1;
+    }
+
+    .btn-appstore .apple {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .btn-appstore .small {
+      font-size: 11px;
+      font-weight: 500;
+      opacity: 0.8;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .btn-appstore .big {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      line-height: 1.1;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      padding: 64px 0 80px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mint-dark);
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding: 6px 12px;
+      background: rgba(61, 191, 132, 0.1);
+      border-radius: 100px;
+    }
+
+    .hero h1 {
+      margin-bottom: 20px;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--ink-secondary);
+      line-height: 1.55;
+      margin-bottom: 32px;
+      max-width: 540px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .hero-rating {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 14px;
+      color: var(--ink-secondary);
+    }
+
+    .stars {
+      color: #FFB800;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    /* ─── iPhone Mockup ─── */
+    .iphone {
+      width: 320px;
+      height: 660px;
+      background: #1A1A1A;
+      border-radius: 48px;
+      padding: 12px;
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.18),
+        0 0 0 2px rgba(0, 0, 0, 0.06);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .iphone::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 28px;
+      background: #1A1A1A;
+      border-radius: 0 0 16px 16px;
+      z-index: 2;
+    }
+
+    .iphone-screen {
+      width: 100%;
+      height: 100%;
+      background: #FFFFFF;
+      border-radius: 38px;
+      overflow: hidden;
+      position: relative;
+      padding: 56px 20px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mock-greeting-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--ink-tertiary);
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .mock-greeting {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--ink);
+      line-height: 1.05;
+      margin-bottom: 18px;
+    }
+
+    .mock-hero-card {
+      background: linear-gradient(135deg, #FF8A5B, #FF6B9D);
+      border-radius: 18px;
+      padding: 16px;
+      color: #FFF;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 20px rgba(255, 107, 91, 0.25);
+    }
+
+    .mock-hero-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+
+    .mock-hero-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+
+    .mock-hero-countdown {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .mock-hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--mint);
+      color: #FFF;
+      padding: 6px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .mock-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .mock-stat-card {
+      background: #FFF;
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .mock-stat-value {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: var(--ink);
+    }
+
+    .mock-stat-label {
+      font-size: 9px;
+      color: var(--ink-tertiary);
+      margin-top: 2px;
+    }
+
+    .mock-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--ink-tertiary);
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .mock-subject-row {
+      background: #FFF;
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mock-subject-stripe {
+      width: 3px;
+      height: 30px;
+      background: var(--mint);
+      border-radius: 2px;
+    }
+
+    .mock-subject-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mock-subject-meta {
+      font-size: 9px;
+      color: var(--ink-tertiary);
+      margin-top: 1px;
+    }
+
+    .mock-tabbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #FFF;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding-bottom: 8px;
+    }
+
+    .mock-tab {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #DDD;
+    }
+
+    .mock-tab.active {
+      background: var(--ink);
+    }
+
+    /* ─── Section ─── */
+    section {
+      padding: 80px 0;
+    }
+
+    section.subtle {
+      background: var(--surface);
+    }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-tertiary);
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-head {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-head h2 {
+      margin-bottom: 12px;
+    }
+
+    .section-head p {
+      font-size: 17px;
+      color: var(--ink-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ─── 3 Steps ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .step {
+      text-align: left;
+    }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--ink);
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 17px;
+      margin-bottom: 20px;
+    }
+
+    .step h3 {
+      margin-bottom: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      font-size: 20px;
+    }
+
+    .step p {
+      font-size: 15px;
+      color: var(--ink-secondary);
+      line-height: 1.55;
+    }
+
+    /* ─── Features ─── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(61, 191, 132, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--ink-secondary);
+      line-height: 1.55;
+    }
+
+    /* ─── Pricing ─── */
+    .pricing {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      position: relative;
+    }
+
+    .price-card.popular {
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -12px;
+      right: 24px;
+      background: var(--mint);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      padding: 6px 12px;
+      border-radius: 100px;
+      box-shadow: 0 4px 12px rgba(61, 191, 132, 0.3);
+    }
+
+    .price-name {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--ink-tertiary);
+      margin-bottom: 12px;
+    }
+
+    .price-value {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+
+    .price-amount {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .price-period {
+      font-size: 14px;
+      color: var(--ink-tertiary);
+      font-weight: 600;
+    }
+
+    .price-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+    }
+
+    .price-features li {
+      padding: 8px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .price-features li::before {
+      content: '✓';
+      color: var(--mint);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* ─── Testimonials ─── */
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .testimonial {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+
+    .testimonial-stars {
+      color: #FFB800;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .testimonial-quote {
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--mint), var(--warm));
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .testimonial-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .testimonial-uni {
+      font-size: 12px;
+      color: var(--ink-tertiary);
+    }
+
+    /* ─── Final CTA ─── */
+    .final-cta {
+      background: var(--ink);
+      color: #FFF;
+      border-radius: 32px;
+      padding: 72px 32px;
+      text-align: center;
+      margin: 0 24px 80px;
+    }
+
+    .final-cta h2 {
+      color: #FFF;
+      margin-bottom: 12px;
+    }
+
+    .final-cta p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+    }
+
+    .final-cta .btn-appstore {
+      background: #FFF;
+      color: var(--ink);
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      background: var(--surface);
+      padding: 64px 0 32px;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      color: var(--ink-tertiary);
+      margin-top: 12px;
+      max-width: 320px;
+    }
+
+    .footer-col-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--ink-tertiary);
+      margin-bottom: 14px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-col li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col a {
+      font-size: 14px;
+      color: var(--ink-secondary);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--ink-tertiary);
+    }
+
+    /* ─── Legal pages ─── */
+    .legal-page {
+      display: none;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .legal-page.visible {
+      display: block;
+    }
+
+    .legal-page h1 {
+      font-size: 40px;
+      line-height: 1.05;
+      letter-spacing: -1.2px;
+      margin-bottom: 8px;
+    }
+
+    .legal-page .stand {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--ink-tertiary);
+      margin-bottom: 32px;
+    }
+
+    .legal-page h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin: 40px 0 12px;
+    }
+
+    .legal-page h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      margin: 24px 0 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .legal-page p,
+    .legal-page li {
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.65;
+    }
+
+    .legal-page ul, .legal-page ol {
+      padding-left: 22px;
+      margin: 8px 0 16px;
+    }
+
+    .legal-page li {
+      margin-bottom: 6px;
+    }
+
+    .legal-page a {
+      color: var(--mint-dark);
+      font-weight: 600;
+    }
+
+    .legal-card {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mint-dark);
+      cursor: pointer;
+      margin-bottom: 32px;
+      background: none;
+      border: 0;
+      padding: 0;
+    }
+
+    /* ─── Animations ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up {
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .fade-up-delay-1 { animation-delay: 0.1s; }
+    .fade-up-delay-2 { animation-delay: 0.2s; }
+    .fade-up-delay-3 { animation-delay: 0.3s; }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 880px) {
+      .hero { padding: 48px 0 56px; }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .iphone {
+        width: 280px;
+        height: 580px;
+      }
+      .nav-links { display: none; }
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .features {
+        grid-template-columns: 1fr;
+      }
+      .pricing {
+        grid-template-columns: 1fr;
+      }
+      .testimonials {
+        grid-template-columns: 1fr;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+      .final-cta {
+        padding: 56px 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 36px; }
+      .price-card { padding: 28px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="topnav">
+  <div class="container nav-inner">
+    <a href="#" class="wordmark" onclick="showHome(event)">Crush<span class="dot"></span>It</a>
+    <div class="nav-links">
+      <a href="#how">So funktioniert's</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Preise</a>
+    </div>
+    <a href="#" class="btn btn-primary btn-sm">App laden</a>
+  </div>
+</nav>
+
+<!-- ═══════════ HOME (alle Sections) ═══════════ -->
+<main id="home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="fade-up">
+        <span class="hero-eyebrow">Neu · KI-gestützt</span>
+        <h1>Upload.<br />Verstehen.<br />Bestehen.</h1>
+        <p class="hero-sub">CrushIt analysiert deine Skripte mit KI und erstellt Zusammenfassungen, Karteikarten und Prüfungssimulationen. Bestehe deine Prüfung mit 40 % weniger Lernzeit.</p>
+        <div class="hero-ctas">
+          <a href="#" class="btn-appstore">
+            <span class="apple"></span>
+            <span>
+              <span class="small">Laden im</span><br />
+              <span class="big">App Store</span>
+            </span>
+          </a>
+          <a href="#how" class="btn btn-outline">Mehr erfahren</a>
+        </div>
+        <div class="hero-rating">
+          <span class="stars">★★★★★</span>
+          <span>4.9 — von Studenten bewertet</span>
+        </div>
+      </div>
+
+      <!-- iPhone Mockup -->
+      <div class="fade-up fade-up-delay-2">
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="mock-greeting-label">DI, 22. MAI</div>
+            <div class="mock-greeting">Guten Tag, Martin 👋</div>
+
+            <div class="mock-hero-card">
+              <div class="mock-hero-label">NÄCHSTE PRÜFUNG</div>
+              <div class="mock-hero-title">Zivilrecht II</div>
+              <div class="mock-hero-countdown">in 11 Tagen</div>
+              <span class="mock-hero-pill">Weiterlernen →</span>
+            </div>
+
+            <div class="mock-stats-grid">
+              <div class="mock-stat-card">
+                <div class="mock-stat-value">12</div>
+                <div class="mock-stat-label">Dokumente</div>
+              </div>
+              <div class="mock-stat-card">
+                <div class="mock-stat-value">347</div>
+                <div class="mock-stat-label">Karteikarten</div>
+              </div>
+            </div>
+
+            <div class="mock-section-label">MEINE FÄCHER</div>
+            <div class="mock-subject-row">
+              <div class="mock-subject-stripe"></div>
+              <div>
+                <div class="mock-subject-name">Zivilrecht II</div>
+                <div class="mock-subject-meta">Prüfung in 11 Tagen · 78 %</div>
+              </div>
+            </div>
+
+            <div class="mock-tabbar">
+              <div class="mock-tab active"></div>
+              <div class="mock-tab"></div>
+              <div class="mock-tab"></div>
+              <div class="mock-tab"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 STEPS -->
+  <section id="how" class="subtle">
+    <div class="container">
+      <div class="section-head fade-up">
+        <div class="section-eyebrow">SO FUNKTIONIERT'S</div>
+        <h2>Drei Schritte zur bestandenen Prüfung</h2>
+        <p>Von der hochgeladenen PDF zur Prüfungssimulation in unter 30 Sekunden.</p>
+      </div>
+      <div class="steps">
+        <div class="step fade-up fade-up-delay-1">
+          <div class="step-num">1</div>
+          <h3>Upload</h3>
+          <p>PDF von der Vorlesung hochladen oder handschriftliche Notizen mit dem iPhone scannen.</p>
+        </div>
+        <div class="step fade-up fade-up-delay-2">
+          <div class="step-num">2</div>
+          <h3>AI analysiert</h3>
+          <p>Claude und OpenAI extrahieren Zusammenfassung, Kernkonzepte, Karteikarten und Probefragen — automatisch.</p>
+        </div>
+        <div class="step fade-up fade-up-delay-3">
+          <div class="step-num">3</div>
+          <h3>Bestehen</h3>
+          <p>Lern mit Spaced-Repetition-Karten, simuliere die Prüfung — wisse vorher, ob du sitzt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="container">
+      <div class="section-head fade-up">
+        <div class="section-eyebrow">FEATURES</div>
+        <h2>Alles in einer App.</h2>
+        <p>Vier Werkzeuge, die zusammen mehr leisten als jede einzelne Lern-App.</p>
+      </div>
+      <div class="features">
+        <div class="feature-card fade-up fade-up-delay-1">
+          <div class="feature-icon">📝</div>
+          <h3>AI-Zusammenfassungen</h3>
+          <p>Jedes Skript in drei Längen: 30 Sekunden für die Übersicht, 3 Minuten für die Wiederholung, vollständig für die Tiefe.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-2">
+          <div class="feature-icon">🧠</div>
+          <h3>Karteikarten · Spaced Repetition</h3>
+          <p>SM-2-Algorithmus zeigt dir genau die Karten, die du wirst vergessen. Lern nur das, was nötig ist.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-2">
+          <div class="feature-icon">🎯</div>
+          <h3>Prüfungssimulator</h3>
+          <p>Multiple-Choice und offene Fragen mit AI-Bewertung. Mit Stärken-/Schwächen-Analyse pro Thema.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-3">
+          <div class="feature-icon">💡</div>
+          <h3>Erklär einfacher</h3>
+          <p>Vier Verständnis-Stufen: vom akademischen Profi-Niveau bis zur Erklärung für deine kleine Schwester.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="subtle">
+    <div class="container">
+      <div class="section-head fade-up">
+        <div class="section-eyebrow">PREISE</div>
+        <h2>Fair. Transparent. Kündbar.</h2>
+        <p>Starte kostenlos. Wechsle zu Premium, wenn du es brauchst. Keine Tricks.</p>
+      </div>
+      <div class="pricing">
+
+        <div class="price-card fade-up fade-up-delay-1">
+          <div class="price-name">Free</div>
+          <div class="price-value">
+            <span class="price-amount">0 €</span>
+            <span class="price-period">/ für immer</span>
+          </div>
+          <ul class="price-features">
+            <li>3 Dokumente analysieren</li>
+            <li>10 KI-Erklärungen pro Tag</li>
+            <li>1 Prüfungs-Simulation pro Fach</li>
+            <li>Karteikarten unbegrenzt üben</li>
+            <li>Lernfortschritt & Streak</li>
+          </ul>
+          <a href="#" class="btn btn-outline" style="width: 100%;">Kostenlos starten</a>
+        </div>
+
+        <div class="price-card popular fade-up fade-up-delay-2">
+          <div class="price-badge">SPAR 58 %</div>
+          <div class="price-name">Premium · Semester</div>
+          <div class="price-value">
+            <span class="price-amount">24,99 €</span>
+            <span class="price-period">/ 6 Monate</span>
+          </div>
+          <ul class="price-features">
+            <li>Unbegrenzte Uploads</li>
+            <li>Unbegrenzte KI-Erklärungen</li>
+            <li>Voller Prüfungs-Simulator</li>
+            <li>Stärken-/Schwächen-Analyse</li>
+            <li>Priorisierte AI-Analyse</li>
+            <li>7 Tage kostenlos testen</li>
+          </ul>
+          <a href="#" class="btn btn-mint" style="width: 100%;">7 Tage kostenlos testen</a>
+        </div>
+
+      </div>
+      <p style="text-align: center; color: var(--ink-tertiary); font-size: 13px; margin-top: 32px;">
+        Alternativ: Monats-Abo 4,99 € / Monat. Verlängert sich automatisch. Jederzeit über die Apple-ID-Einstellungen kündbar.
+      </p>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="container">
+      <div class="section-head fade-up">
+        <div class="section-eyebrow">STIMMEN</div>
+        <h2>Studenten, die's geschafft haben.</h2>
+      </div>
+      <div class="testimonials">
+        <div class="testimonial fade-up fade-up-delay-1">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">„Die Zusammenfassungen sind ein Game-Changer. 400-Seiten-Skript in 3 Stunden durch — vorher waren das 3 Tage."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SM</div>
+            <div>
+              <div class="testimonial-name">Sarah M.</div>
+              <div class="testimonial-uni">Jura, LMU München</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up fade-up-delay-2">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">„Der Prüfungs-Simulator hat mich vorbereitet wie kein Lehrbuch. Hab am Ende eine 1.3 geschrieben."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">LK</div>
+            <div>
+              <div class="testimonial-name">Lukas K.</div>
+              <div class="testimonial-uni">BWL, Uni Zürich</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up fade-up-delay-3">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">„„Erklär einfacher" ist Magie. Wenn ich was nicht verstehe, klicke ich auf die Stufe 4 — fertig."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">NR</div>
+            <div>
+              <div class="testimonial-name">Nina R.</div>
+              <div class="testimonial-uni">Medizin, Charité Berlin</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <div class="container" style="padding: 0;">
+    <div class="final-cta fade-up">
+      <h2>Bereit für deine nächste Prüfung?</h2>
+      <p>7 Tage kostenlos. Kein Risiko. Jederzeit kündbar.</p>
+      <a href="#" class="btn-appstore">
+        <span class="apple"></span>
+        <span>
+          <span class="small">Laden im</span><br />
+          <span class="big">App Store</span>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <span class="wordmark">Crush<span class="dot"></span>It</span>
+          <p>KI-gestützte Lern-App für deutschsprachige Studenten. Server in der EU. DSGVO-konform.</p>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Produkt</div>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Preise</a></li>
+            <li><a href="#">App Store</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Rechtliches</div>
+          <ul>
+            <li><a href="#datenschutz" onclick="showLegal(event, 'datenschutz')">Datenschutz</a></li>
+            <li><a href="#impressum" onclick="showLegal(event, 'impressum')">Impressum</a></li>
+            <li><a href="#agb" onclick="showLegal(event, 'agb')">AGB</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Kontakt</div>
+          <ul>
+            <li><a href="mailto:support@crushit-app.com">support@crushit-app.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Martin Wiederhold</span>
+        <span>Made in Switzerland</span>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<!-- ═══════════ DATENSCHUTZ ═══════════ -->
+<section id="datenschutz" class="legal-page">
+  <button class="back-home" onclick="showHome(event)">← Zurück zur Startseite</button>
+  <h1>Datenschutzerklärung</h1>
+  <div class="stand">Stand: 22. Mai 2026</div>
+
+  <p>Diese Erklärung beschreibt, welche personenbezogenen Daten <strong>CrushIt</strong> verarbeitet, zu welchem Zweck und auf welcher Rechtsgrundlage.</p>
+
+  <div class="legal-card">
+    <strong>Verantwortlich</strong><br />
+    Martin Wiederhold<br />
+    E-Mail: <a href="mailto:support@crushit-app.com">support@crushit-app.com</a>
+  </div>
+
+  <h2>1. Welche Daten wir verarbeiten</h2>
+  <h3>1.1 Konto-Daten</h3>
+  <ul>
+    <li><strong>E-Mail-Adresse</strong> (bei Email-Registrierung) oder anonyme Apple-ID (Sign in with Apple) — zur Authentifizierung.</li>
+    <li><strong>Anzeigename, Universität, Studiengang, Semester</strong> (freiwillig) — zur Personalisierung deiner Lerninhalte.</li>
+  </ul>
+
+  <h3>1.2 Inhalte</h3>
+  <ul>
+    <li><strong>Hochgeladene Skripte, Klausuren, Notizen (PDF/Scans)</strong> — Du lädst sie hoch, wir analysieren sie mit KI.</li>
+    <li><strong>Generierte Inhalte</strong>: Zusammenfassungen, Karteikarten, Probefragen, KI-Erklärungen.</li>
+    <li><strong>Lernfortschritt</strong>: Welche Karteikarten du wann beantwortet hast, Prüfungsergebnisse, Streak.</li>
+  </ul>
+
+  <h3>1.3 Abo-Daten</h3>
+  <ul>
+    <li><strong>Premium-Status, Ablaufdatum, Produkt-ID</strong> — verwaltet über Apple App Store / RevenueCat. Wir erhalten keine Zahlungsdaten (Kreditkarte, IBAN) — diese verbleiben bei Apple.</li>
+  </ul>
+
+  <h3>1.4 Technische Daten</h3>
+  <ul>
+    <li>Geräte-Identifikator (intern, zur Abo-Verifikation).</li>
+    <li>Sprache, Zeitzone.</li>
+    <li><strong>Keine</strong> Werbe-IDs, kein IDFA, keine Tracking-Pixel.</li>
+  </ul>
+
+  <h2>2. Wo deine Daten gespeichert werden</h2>
+  <p>Wir nutzen folgende Dienstleister (Auftragsverarbeiter nach Art. 28 DSGVO):</p>
+
+  <div class="legal-card">
+    <strong>Supabase</strong> (Datenbank, Datei-Storage, Authentifizierung)<br />
+    Region: <strong>Frankfurt (EU)</strong>, AWS Frankfurt eu-central-1.<br />
+    <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a>
+  </div>
+
+  <div class="legal-card">
+    <strong>Anthropic Claude</strong> (KI-Analyse von Skripten und Erklärungen)<br />
+    Server in den USA. Standardvertragsklauseln nach DSGVO Art. 46.<br />
+    Eingeschickter Text: Auszüge aus deinen Skripten zur Generierung von Zusammenfassungen, Karteikarten, Fragen.<br />
+    <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>
+  </div>
+
+  <div class="legal-card">
+    <strong>OpenAI</strong> (Text-Embeddings für Suche und Konzeptverknüpfung)<br />
+    Server in den USA. Standardvertragsklauseln.<br />
+    <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">openai.com/privacy-policy</a>
+  </div>
+
+  <div class="legal-card">
+    <strong>RevenueCat</strong> (Abo-Verwaltung über Apple App Store)<br />
+    Wir senden Geräte-IDs und Produkt-IDs, um deinen Abo-Status zu verifizieren.<br />
+    <a href="https://www.revenuecat.com/privacy" target="_blank" rel="noopener">revenuecat.com/privacy</a>
+  </div>
+
+  <div class="legal-card">
+    <strong>Apple</strong> (App Store, Sign in with Apple, Zahlungsabwicklung)<br />
+    Wir erhalten von Apple deine Abo-Bestätigung. Zahlungsdaten bleiben bei Apple.<br />
+    <a href="https://www.apple.com/legal/privacy/de-ww/" target="_blank" rel="noopener">apple.com/legal/privacy</a>
+  </div>
+
+  <h2>3. Zwecke und Rechtsgrundlagen</h2>
+  <ul>
+    <li><strong>Vertragserfüllung</strong> (Art. 6 Abs. 1 lit. b DSGVO): Bereitstellung der App-Funktionen (Upload, AI-Analyse, Karteikarten, Prüfungen).</li>
+    <li><strong>Berechtigtes Interesse</strong> (Art. 6 Abs. 1 lit. f DSGVO): Fehlerbehebung, App-Stabilität.</li>
+    <li><strong>Einwilligung</strong> (Art. 6 Abs. 1 lit. a DSGVO): Optionale Profil-Felder (Uni, Studiengang).</li>
+  </ul>
+
+  <h2>4. Speicherdauer</h2>
+  <ul>
+    <li>Konto- und Inhaltsdaten: solange dein Konto besteht.</li>
+    <li>Nach Löschung deines Kontos werden alle Daten <strong>innerhalb von 30 Tagen</strong> aus unseren Systemen entfernt.</li>
+    <li>Backup-Kopien werden im Rahmen unserer Backup-Rotation gelöscht (max. 90 Tage).</li>
+  </ul>
+
+  <h2>5. Deine Rechte (DSGVO)</h2>
+  <ul>
+    <li><strong>Auskunft</strong> (Art. 15): Welche Daten haben wir über dich?</li>
+    <li><strong>Berichtigung</strong> (Art. 16): Falsche Daten korrigieren.</li>
+    <li><strong>Löschung</strong> (Art. 17): Direkt in der App unter <em>Einstellungen → Mein Konto löschen</em>. Alternativ per Mail an <a href="mailto:support@crushit-app.com">support@crushit-app.com</a>.</li>
+    <li><strong>Einschränkung</strong> (Art. 18) und <strong>Widerspruch</strong> (Art. 21): Per Mail an obigen Kontakt.</li>
+    <li><strong>Datenübertragbarkeit</strong> (Art. 20): Export deiner Daten als JSON auf Anfrage.</li>
+    <li><strong>Beschwerde</strong> bei einer Aufsichtsbehörde (Art. 77): zuständig ist die Datenschutzaufsicht deines Bundeslandes.</li>
+  </ul>
+
+  <h2>6. Cookies und Tracking</h2>
+  <p>Die App nutzt <strong>keine</strong> Tracking-Cookies, keine Drittanbieter-Analytik (Google Analytics, Facebook etc.) und keine Werbe-IDs.</p>
+
+  <h2>7. Sicherheit</h2>
+  <ul>
+    <li>Verschlüsselte Übertragung (TLS 1.3) zwischen App und Server.</li>
+    <li>Datenbank-Zugriff per Row-Level-Security: Du siehst nur deine eigenen Daten.</li>
+    <li>Passwörter werden gehasht (bcrypt) — niemals im Klartext gespeichert.</li>
+  </ul>
+
+  <h2>8. Änderungen dieser Erklärung</h2>
+  <p>Wir können diese Datenschutzerklärung bei Bedarf aktualisieren. Wesentliche Änderungen kommunizieren wir per E-Mail oder In-App-Hinweis.</p>
+
+  <h2>9. Kontakt</h2>
+  <p>Fragen zum Datenschutz: <a href="mailto:support@crushit-app.com">support@crushit-app.com</a></p>
+</section>
+
+<!-- ═══════════ IMPRESSUM ═══════════ -->
+<section id="impressum" class="legal-page">
+  <button class="back-home" onclick="showHome(event)">← Zurück zur Startseite</button>
+  <h1>Impressum</h1>
+  <div class="stand">Pflichtangaben nach § 5 TMG / § 18 MStV</div>
+
+  <h2>Anbieter</h2>
+  <p>
+    Martin Wiederhold<br />
+    Einzelunternehmer
+  </p>
+
+  <h2>Kontakt</h2>
+  <p>
+    E-Mail: <a href="mailto:support@crushit-app.com">support@crushit-app.com</a>
+  </p>
+
+  <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+  <p>Martin Wiederhold (Anschrift wie oben)</p>
+
+  <h2>Streitschlichtung</h2>
+  <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>.</p>
+  <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+  <h2>Haftung für Inhalte</h2>
+  <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
+  <p><strong>Hinweis zu KI-generierten Inhalten:</strong> Die App generiert Zusammenfassungen, Karteikarten und Probefragen mittels künstlicher Intelligenz. Diese Inhalte können fehlerhaft sein und ersetzen keine fachliche Prüfung. Verwendung erfolgt auf eigene Verantwortung.</p>
+
+  <h2>Haftung für Links</h2>
+  <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
+
+  <h2>Urheberrecht</h2>
+  <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke unterliegen dem deutschen Urheberrecht. <strong>Du behältst alle Rechte an deinen hochgeladenen Skripten.</strong> Wir nutzen sie ausschließlich zur Bereitstellung der App-Funktionen für dich.</p>
+</section>
+
+<!-- ═══════════ AGB ═══════════ -->
+<section id="agb" class="legal-page">
+  <button class="back-home" onclick="showHome(event)">← Zurück zur Startseite</button>
+  <h1>Allgemeine Geschäftsbedingungen</h1>
+  <div class="stand">Stand: 22. Mai 2026</div>
+
+  <h2>§ 1 Geltungsbereich</h2>
+  <p>Diese AGB gelten für die Nutzung der mobilen App <strong>CrushIt</strong> (iOS), bereitgestellt von Martin Wiederhold (im Folgenden „Anbieter"). Mit der Installation und Nutzung der App akzeptierst du diese Bedingungen.</p>
+
+  <h2>§ 2 Leistungsbeschreibung</h2>
+  <p>CrushIt ist eine Lern-App, die deine hochgeladenen Skripte mittels künstlicher Intelligenz analysiert und folgende Inhalte generiert:</p>
+  <ul>
+    <li>Zusammenfassungen in mehreren Längen</li>
+    <li>Karteikarten mit Spaced-Repetition-Algorithmus</li>
+    <li>Probefragen (Multiple-Choice und offene Fragen)</li>
+    <li>Vereinfachte Erklärungen in 4 Verständnisstufen</li>
+    <li>Prüfungssimulationen mit AI-gestützter Bewertung</li>
+  </ul>
+
+  <h2>§ 3 Kostenloses Kontingent</h2>
+  <ul>
+    <li>3 PDF-Uploads insgesamt</li>
+    <li>10 KI-Erklärungen pro Tag</li>
+    <li>1 Prüfungs-Simulation pro Fach</li>
+  </ul>
+
+  <h2>§ 4 Premium-Abonnement</h2>
+  <h3>4.1 Leistungsumfang</h3>
+  <ul>
+    <li>Unbegrenzte PDF-Uploads</li>
+    <li>Unbegrenzte KI-Erklärungen</li>
+    <li>Voller Prüfungssimulator inkl. Stärken-/Schwächen-Analyse</li>
+    <li>Priorisierte AI-Analyse</li>
+  </ul>
+
+  <h3>4.2 Laufzeit und Verlängerung</h3>
+  <ul>
+    <li><strong>Monats-Abo</strong>: 4,99 € / Monat, monatliche Verlängerung</li>
+    <li><strong>Semester-Abo</strong>: 24,99 € / 6 Monate, halbjährliche Verlängerung</li>
+  </ul>
+  <p>Abos verlängern sich <strong>automatisch</strong>, sofern sie nicht spätestens 24 Stunden vor Ablauf gekündigt werden.</p>
+
+  <h3>4.3 Kündigung</h3>
+  <p>Die Kündigung erfolgt über die <strong>Apple-ID-Einstellungen</strong> deines iPhones (Einstellungen → Apple-ID → Abonnements → CrushIt Premium → Abonnement kündigen). Nach Kündigung läuft Premium bis zum Ende des bezahlten Zeitraums.</p>
+
+  <h3>4.4 Kostenloser Test</h3>
+  <p>Neue Abonnenten erhalten einen 7-Tage-kostenlos-Test. Wenn du innerhalb dieser Frist kündigst, fallen keine Kosten an.</p>
+
+  <h3>4.5 Erstattung</h3>
+  <p>Erstattungen erfolgen ausschließlich über Apples Refund-Prozess (reportaproblem.apple.com). Der Anbieter kann keine direkten Erstattungen vornehmen.</p>
+
+  <h3>4.6 Widerrufsrecht</h3>
+  <p>Mit Beginn der Bereitstellung digitaler Inhalte erlischt nach § 356 Abs. 5 BGB dein Widerrufsrecht. Du erteilst durch den Kauf ausdrücklich deine Zustimmung zur sofortigen Bereitstellung und bestätigst die Kenntnis vom Erlöschen des Widerrufsrechts.</p>
+
+  <h2>§ 5 Pflichten des Nutzers</h2>
+  <ul>
+    <li>Du darfst nur Inhalte hochladen, an denen du die nötigen Rechte besitzt (eigene Notizen, lizenziertes Lehrmaterial, Open-Access-Inhalte).</li>
+    <li>Du nutzt die App nicht für rechtswidrige Zwecke.</li>
+    <li>Du gibst deine Zugangsdaten nicht weiter.</li>
+  </ul>
+
+  <h2>§ 6 Geistiges Eigentum</h2>
+  <ul>
+    <li>Du behältst alle Rechte an deinen hochgeladenen Inhalten.</li>
+    <li>Die generierten Inhalte (Zusammenfassungen, Karten, Fragen) sind zur persönlichen Nutzung bestimmt.</li>
+    <li>Die App-Software selbst inkl. Logo, Design und Marken bleibt Eigentum des Anbieters.</li>
+  </ul>
+
+  <h2>§ 7 Haftungsausschluss</h2>
+  <p><strong>Wichtig:</strong> Die App nutzt künstliche Intelligenz zur Generierung von Lerninhalten. KI kann Fehler machen — generierte Antworten, Zusammenfassungen oder Erklärungen sind <strong>keine Garantie für Korrektheit</strong> und ersetzen <strong>keine fachliche Prüfung durch eine qualifizierte Person</strong>.</p>
+  <p>Insbesondere übernimmt der Anbieter keine Haftung für:</p>
+  <ul>
+    <li>Den Erfolg deiner Prüfungen oder dein Lernergebnis</li>
+    <li>Inhaltliche Korrektheit KI-generierter Texte</li>
+    <li>Schäden durch Verlust deiner hochgeladenen Daten (du bist für eigene Backups verantwortlich)</li>
+  </ul>
+  <p>Die Haftung für vorsätzlich oder grob fahrlässig verursachte Schäden sowie für Schäden aus der Verletzung des Lebens, Körpers oder der Gesundheit bleibt unberührt.</p>
+
+  <h2>§ 8 Verfügbarkeit</h2>
+  <p>Der Anbieter ist bemüht, eine hohe Verfügbarkeit der App zu gewährleisten, kann aber keine Garantie für unterbrechungsfreien Betrieb übernehmen.</p>
+
+  <h2>§ 9 Konto-Löschung</h2>
+  <p>Du kannst dein Konto jederzeit in der App löschen (Einstellungen → Mein Konto löschen) oder per Mail an <a href="mailto:support@crushit-app.com">support@crushit-app.com</a>. Bei Löschung werden alle deine Daten innerhalb von 30 Tagen unwiderruflich entfernt.</p>
+
+  <h2>§ 10 Anwendbares Recht und Gerichtsstand</h2>
+  <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand für Streitigkeiten mit Kaufleuten ist der Sitz des Anbieters.</p>
+
+  <h2>§ 11 Salvatorische Klausel</h2>
+  <p>Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+
+  <h2>§ 12 Kontakt</h2>
+  <p>Fragen zu diesen Bedingungen: <a href="mailto:support@crushit-app.com">support@crushit-app.com</a></p>
+</section>
+
+<script>
+  // Hash-Routing: ermöglicht direkten Link zu /#datenschutz etc.
+  function showHome(event) {
+    if (event) event.preventDefault();
+    document.querySelectorAll('.legal-page').forEach((el) => el.classList.remove('visible'));
+    document.getElementById('home').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    history.replaceState(null, '', '#');
+  }
+
+  function showLegal(event, id) {
+    if (event) event.preventDefault();
+    document.getElementById('home').style.display = 'none';
+    document.querySelectorAll('.legal-page').forEach((el) => el.classList.remove('visible'));
+    const target = document.getElementById(id);
+    if (target) {
+      target.classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      history.replaceState(null, '', '#' + id);
+    }
+  }
+
+  function applyHashRoute() {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash === 'datenschutz' || hash === 'impressum' || hash === 'agb') {
+      showLegal(null, hash);
+    } else {
+      showHome(null);
+    }
+  }
+
+  window.addEventListener('hashchange', applyHashRoute);
+  window.addEventListener('DOMContentLoaded', applyHashRoute);
+</script>
+
+</body>
+</html>
